@@ -1,0 +1,60 @@
+PostgreSQL database
+
+----------------------------------------------------
+----------------------------------------------------
+----------------------------------------------------
+
+HOWTO Connect:
+
+First, make sure Postgres is set up in your environment.
+
+To connect to the database with your own login credentials, edit the top of
+public_html/index.php on line 6 where it says:
+
+$db->connectDefault();
+
+and change this to
+
+$db->connect("CUSTOM CONNECTION STRING");
+
+where "CUSTOM CONNECTION STRING" should be your own database credentials and database selection.
+
+An example of the default connection string used for my own testing, the connection string is "user=maxim password=changeme dbname=maximtest"
+
+
+----------------------------------------------------
+----------------------------------------------------
+----------------------------------------------------
+
+Structure:
+
+----------------------------------------------------
+Table = 'users'
+Primary Key = (id)
+----------------------------------------------------
+column 1 = 'id' | BIGINT | NOT NULL | AUTO_INCREMENT
+column 2 = 'username' | VARCHAR(128) | NOT_NULL
+column 3 = 'password' | VARCHAR(256) | NOT_NULL
+column 4 = 'firstname' | VARCHAR(256)
+column 5 = 'lastname' | VARCHAR(256)
+----------------------------------------------------
+Example Row Entry:
+7 | "maxim" | "$2y$10$.xPYGVUpWlouId3v.z3YaOAKqNs2XW7LsJ1Ty74pt.PlRzwwKooA." | "Maxim" | "Tiourin"
+----------------------------------------------------
+----------------------------------------------------
+
+
+----------------------------------------------------
+Table = 'sessions'
+Primary Key = (userid, sessionid)
+----------------------------------------------------
+column 1 = 'userid' | BIGINT | NOT NULL
+column 2 = 'sessionid' | VARCHAR(256) | NOT_NULL
+column 3 = 'expiration' | BIGINT | DEFAULT=0
+column 4 = 'ipaddress' | VARCHAR(39) | NOT_NULL
+----------------------------------------------------
+Example Row Entry:
+7 | "7ac93dd4246bd50d23ae8ef084d122b6db6b02beb8447f5a1c5a89be4f5006d7" | 1475927401 | "127.0.0.1"
+----------------------------------------------------
+----------------------------------------------------
+
