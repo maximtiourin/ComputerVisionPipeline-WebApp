@@ -44,10 +44,12 @@ function repopulatePost($name) {
  * 'a-z'
  * 'A-Z'
  * '0-9'
- * '_'     (only one in a row, and only when between other valid characters)
+ * ''
+ * 
+ * Allows empty string so that the error can be eaten further down the line
  */
 function isStringValidLogin($str) {
-    if (preg_match("^[a-zA-Z0-9]+(_[a-zA-Z0-9]+)*$", $str) == 1) {
+    if (preg_match("/^[a-zA-Z0-9]*$/", $str)) {
         return true;
     }
     else {
@@ -191,7 +193,7 @@ else if (filter_has_var(INPUT_GET, "register")) {
          * 2 = Please enter a password
          * 3 = Passwords do not match
          * 4 = Username is already taken
-         * 5 = Username/Password can only contain: a-z, A-Z, 0-9, and/or _ as a separator
+         * 5 = Username/Password can only contain: a-z, A-Z, 0-9
          */
 
         //Register has been submitted
@@ -333,7 +335,7 @@ if ($invalid) {
         }
         else if ($error['register'] == 5) {
             echo '
-                <a class="error">Username/Password can only contain: a-z, A-Z, 0-9, and/or _ as a separator.</a>
+                <a class="error">Username/Password can only contain: a-z, A-Z, 0-9</a>
                 <br><br>
             ';
         }
