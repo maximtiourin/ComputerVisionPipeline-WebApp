@@ -32,10 +32,11 @@ class Session {
     * Starts a new session, updating the sessions table, returning the session id
     */
     public static function startNewSession($userid, $dbconnection) {
-        $hash = Session::generateSessionId($userid);
-        $expiration = Session::generateExpirationTime();
+        $hash = self::generateSessionId($userid);
+        $expiration = self::generateExpirationTime();
 
-        $dbconnection->query("INSERT INTO sessions VALUES (".$userid.", '".$hash."', ".$expiration.", '".self::getIPAddress()."')");
+        $dbconnection->execute("insert_sessions_userid-sessionid-expiration-ipaddress",
+                array($userid, $hash, $expiration, self::getIPAddress()));
 
         return $hash;
     }
@@ -44,6 +45,6 @@ class Session {
     * Purges any sessions that are expired for the userid from the database
     */
     function purgeExpiredSessions($userid, $dbconnection) {
-       $dbconnection->query("DELETE FROM sessions WHERE userid=".$userid." AND expiration<=".time());
+        $dbconnection->execute("delete_sessions_userid-expiration*LTEQ", array($userid, time()));
     }
 }
