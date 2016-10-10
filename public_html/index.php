@@ -4,6 +4,7 @@ include 'includes/include.php';
 //Connect to postgres db
 $db = new Database();
 $db->connectDefault();
+$db->prepareDefault();
 
 /////////////////////////
 //Define utility functions
@@ -29,10 +30,28 @@ function sanitize($string) {
  */
 function repopulatePost($name) {
     if (filter_has_var(INPUT_POST, $name)) {
-        return sanitize(filter_input(INPUT_POST, $name, FILTER_SANITIZE_STRING));
+        return htmlspecialchars_decode(sanitize(filter_input(INPUT_POST, $name, FILTER_SANITIZE_STRING)));
     }
     else {
         return '';
+    }
+}
+
+/*
+ * Checks to see if the string contains only characters that are allowed
+ * for a login input string.
+ * Allowed characters:
+ * 'a-z'
+ * 'A-Z'
+ * '0-9'
+ * '_'     (only one in a row, and only when between other valid characters)
+ */
+function isStringValidLogin($str) {
+    if (preg_match("^[a-zA-Z0-9]+(_[a-zA-Z0-9]+)*$", $str) == 1) {
+        return true;
+    }
+    else {
+        return false;
     }
 }
 
@@ -49,7 +68,7 @@ if (filter_has_var(INPUT_GET, "sid")) {
     //Validate session
     $sid = sanitize(filter_input(INPUT_GET, "sid", FILTER_SANITIZE_ENCODED));
     
-    $result = $db->query("SELECT * FROM sessions WHERE sessionid = '".$sid."'");
+    $result = $db->execute("select_sessions_sessionid", array($sid));
     if ($db->countResultRows($result) == 1) {
         while ($row = $db->fetchArray($result)) {
             $userid = $row['userid'];
@@ -66,9 +85,8 @@ if (filter_has_var(INPUT_GET, "sid")) {
             }
             else {
                 //Session has been refreshed, set new expiration
-                $result2 = $db->query("UPDATE sessions SET expiration="
-                        .Session::generateExpirationTime()." WHERE userid="
-                        .$userid." AND sessionid='".$sid."'");
+                $result2 = $db->execute("update_sessions_expiration_userid-sessionid", 
+                        array(Session::generateExpirationTime(), $userid, $sid));
             }
         }
         
@@ -80,25 +98,25 @@ if (filter_has_var(INPUT_GET, "sid")) {
     
     if (!$invalid) {
         //Grab user information
-        $result = $db->query("SELECT * FROM users WHERE id=".$userid);
+        $result = $db->execute("select_users_id", array($userid));
         
         if ($db->countResultRows($result) == 1) {
             $row = $db->fetchArray($result);
             
             $data['sid'] = $sid;
             $data['username'] = $row['username'];
-            $data['firstname'] = $row['firstname'];
-            $data['lastname'] = $row['lastname'];
+            $data['firstname'] = htmlspecialchars_decode($row['firstname']);
+            $data['lastname'] = htmlspecialchars_decode($row['lastname']);
 
             //Check if should logout one or all
             if (filter_has_var(INPUT_GET, "logout")) {
                 //Logout session
-                $db->query("DELETE FROM sessions WHERE userid=".$userid." AND sessionid='".$sid."'");
+                $db->execute("delete_sessions_userid-sessionid", array($userid, $sid));
                 redirect('index.php?login');
             }
             else if (filter_has_var(INPUT_GET, "logoutAll")) {
                 //Logout all sessions
-                $db->query("DELETE FROM sessions WHERE userid=".$userid);
+                $db->execute("delete_sessions_userid", array($userid));
                 redirect('index.php?login');
             }
             
@@ -130,7 +148,7 @@ else if (filter_has_var(INPUT_GET, "login")) {
         $username = sanitize(filter_input(INPUT_POST, "username", FILTER_SANITIZE_STRING));
         $password = sanitize(filter_input(INPUT_POST, "password", FILTER_SANITIZE_STRING));
         
-        $result = $db->query("SELECT * FROM users WHERE username='".$username."'");
+        $result = $db->execute("select_users_username", array($username));
         
         $haveError = false;
         if ($db->countResultRows($result) !== 1) {
@@ -173,6 +191,7 @@ else if (filter_has_var(INPUT_GET, "register")) {
          * 2 = Please enter a password
          * 3 = Passwords do not match
          * 4 = Username is already taken
+         * 5 = Username/Password can only contain: a-z, A-Z, 0-9, and/or _ as a separator
          */
 
         //Register has been submitted
@@ -185,10 +204,15 @@ else if (filter_has_var(INPUT_GET, "register")) {
         $firstname = sanitize(filter_input(INPUT_POST, "firstname", FILTER_SANITIZE_STRING));
         $lastname = sanitize(filter_input(INPUT_POST, "lastname", FILTER_SANITIZE_STRING));
 
-        $result = $db->query("SELECT * FROM users WHERE username='".$username."'");
+        $result = $db->execute("select_users_username", array($username));
 
         $haveError = false;
-        if (strlen($username) <= 0) {
+        if (!isStringValidLogin($username) || !isStringValidLogin($password)) {
+            //Error 5
+            $error['register'] = 5;
+            $haveError = true;
+        }
+        else if (strlen($username) <= 0) {
             //Error 1
             $error['register'] = 1;
             $haveError = true;
@@ -213,8 +237,8 @@ else if (filter_has_var(INPUT_GET, "register")) {
             //Register user
             $hash = password_hash($password, PASSWORD_DEFAULT);
 
-            $db->query("INSERT INTO users (username, password, firstname, lastname) VALUES ('"
-                    .$username."', '".$hash."', '".$firstname."', '".$lastname."')");
+            $db->execute("insert_users_username-password-firstname-lastname", 
+                    array($username, $hash, $firstname, $lastname));
 
             //Redirect to Login
             redirect('index.php?login&registered');
@@ -304,6 +328,12 @@ if ($invalid) {
         else if ($error['register'] == 4) {
             echo '
                 <a class="error">Username is already taken.</a>
+                <br><br>
+            ';
+        }
+        else if ($error['register'] == 5) {
+            echo '
+                <a class="error">Username/Password can only contain: a-z, A-Z, 0-9, and/or _ as a separator.</a>
                 <br><br>
             ';
         }
