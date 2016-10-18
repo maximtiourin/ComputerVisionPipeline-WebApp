@@ -293,6 +293,9 @@ if (filter_has_var(INPUT_GET, "upload")) {
         //The filepath to temporarily store the video in, before it gets processed
         $file = $tempdir . $tempid . "." . $extension;
         
+        //Get file metadata
+        $metadata = VideoHandling::getVideoMetadata($_FILES['video']['tmp_name']);
+        
         //Validate file, then upload to server
         $haveError = false;
         if (!FileHandling::isValidSize($size, $maxSize)) {
@@ -304,18 +307,10 @@ if (filter_has_var(INPUT_GET, "upload")) {
             $error['upload'] = 2;
             $haveError = true;
         }
-        else if (!VideoHandling::verifyVideoIntegrity($_FILES['video']['tmp_name'])) {
+        else if (!VideoHandling::verifyVideoIntegrity($metadata)) {
             $error['upload'] = 3;
             $haveError = true;
         }
-        
-        /*$out = shell_exec('ffprobe -v quiet -print_format json -show_format -show_streams "'.$_FILES['video']['tmp_name'].'"');
-        echo $out;
-        echo '<br><br>';
-        $json = json_decode($out, true);
-        print_r($json);
-        echo '<br><br>';
-        $haveError = true;*/
         
         if (!$haveError) {  
             //Move file to temp directory with correct identifier
@@ -325,6 +320,12 @@ if (filter_has_var(INPUT_GET, "upload")) {
                 FileHandling::ensurePermissions($file);
                 
                 //Create database entry with metadata and flag for processing
+                $fps = VideoHandling::getFrameRate($metadata);
+                $framesize = VideoHandling::getFrameResolution($metadata);
+                $framecount = VideoHandling::getFrameCount($metadata);
+                
+                $db->execute("insert_videos_userid-frame_rate-frame_width-frame_height-frame_count-filepath_temp",
+                        array($data['userid'], $fps, $framesize['width'], $framesize['height'], $framecount, $file));
 
                 //Flag file uploaded confirmation
                 $flag['videoUploaded'] = true;
