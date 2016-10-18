@@ -105,6 +105,7 @@ if (filter_has_var(INPUT_GET, "sid")) {
         if ($db->countResultRows($result) == 1) {
             $row = $db->fetchArray($result);
             
+            $data['userid'] = $userid;
             $data['sid'] = $sid;
             $data['username'] = $row['username'];
             $data['firstname'] = htmlspecialchars_decode($row['firstname']);
@@ -259,24 +260,65 @@ if ($invalid) {
 
 //Determine State after Login
 if (filter_has_var(INPUT_GET, "upload")) {
+    /*
+     * Upload Error Reference
+     * 1 = File size exceeds limit of 4GB
+     * 2 = Invalid file type (Allowed types: avi)
+     */
+    
     $flag['displayUploadForm'] = true;
-    $data['maxVideoByteSize'] = 4294967296; //4GB
-    $tempdir = '../videos/temp/'; //Specifies temp directory to store file in
-    $file = $uploaddir . basename($_FILES['userfile']['name']); //The filepath to temporarily store the video in, before it gets processed
+    $data['maxVideoByteSize'] = FileHandling::getBytesForGigabytes(4); //4GB
+    $videodir = '../videos/';
+    $tempdir = $videodir.'temp/';
+    
+    //Create directories if they dont exist
+    FileHandling::ensureDirectory($videodir);
+    FileHandling::ensureDirectory($tempdir);
     
     //Check to see if video was uploaded
     if (filter_has_var(INPUT_POST, "submitUpload")) {
         //Upload has been submitted
         $flag['submitUpload'] = true;
         
-        //Check to see if video was correctly uploaded to server
-        if (is_uploaded_file($_FILES['video']['tmp_name'])) {
-            //Move file to temp directory with correct identifier, and create database entry to flag for processing
-            
+        //Determine temp file data
+        $tempid = FileHandling::generateTempFileIdentifier($data['userid'] . $data['sid']);
+        $extension = FileHandling::getFileExtension($_FILES['video']['name']);
+        $validExtensions = array("avi");
+        $size = $_FILES['video']['size'];
+        $maxSize = $data['maxVideoByteSize'];
+        $type = $_FILES['video']['type'];
+        $validTypes = array("application/x-troff-msvideo", "video/avi", "video/msvideo", "video/x-msvideo", "video/avs-video");
+        
+        //The filepath to temporarily store the video in, before it gets processed
+        $file = $tempdir . $tempid . "." . $extension;
+        
+        //Validate file, then upload to server
+        $haveError = false;
+        if (!FileHandling::isValidSize($size, $maxSize)) {
+            $error['upload'] = 1;
+            $haveError = true;
         }
-        else {
-            //Upload attack, Redirect to upload without printing error
-            redirect(Session::buildSessionUrl("index.php", $data["sid"], "upload"));
+        else if (!FileHandling::isValidExtension($extension, $validExtensions)
+                || !FileHandling::isValidMimeType($type, $validTypes)) {
+            $error['upload'] = 2;
+            $haveError = true;
+        }
+        
+        if (!$haveError) {            
+            $uploaded = move_uploaded_file($_FILES['video']['tmp_name'], $file);
+            if ($uploaded) {            
+                //Update permissions for file
+                FileHandling::ensurePermissions($file);
+                
+                //Move file to temp directory with correct identifier, and create database entry to flag for processing
+
+                //Show file uploaded confirmation
+                $flag['videoUploaded'] = true;
+            }
+            else {
+                //Possible Upload attack, print generic error
+                $flag['videoNotUploaded'] = true;
+            }
         }
     }
 }
@@ -295,13 +337,39 @@ if (filter_has_var(INPUT_GET, "upload")) {
             <br><br>
         ';
         
+        if ($flag['videoUploaded']) {
+            echo '
+                <a class="success">Video successfully uploaded.</a>
+                <br><br>
+            ';
+        }
+        else if ($flag['videoNotUploaded']) {
+            echo '
+                <a class="error">Video could not be uploaded, please try again.</a>
+                <br><br>
+            ';
+        }
+        
+        if ($error['upload'] == 1) {
+            echo '
+                <a class="error">Video file size exceeds allowed limit of 4GB.</a>
+                <br><br>
+            ';
+        }
+        else if ($error['upload'] == 2) {
+            echo '
+                <a class="error">Video type is not supported. Supported types: avi</a>
+                <br><br>
+            ';
+        }
+        
         if ($flag['displayUploadForm']) {
             echo '
-                <form action="'.Session::buildSessionUrl("index.php", $data["sid"], "upload").'" method="post" enctype="multipart/form-data">
+                <form action="" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="MAX_FILE_SIZE" value="'.$data['maxVideoByteSize'].'"/>
                     <label>Upload Video: <input name="video" type="file" /></label>
                     <br><br>
-                    <input name="submitUpload" type="submit" value="Submit" />
+                    <button name="submitUpload" type="submit" value="Submit">Upload</button>
                 </form>
             ';
         }
