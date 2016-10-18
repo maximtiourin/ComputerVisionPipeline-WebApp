@@ -264,6 +264,7 @@ if (filter_has_var(INPUT_GET, "upload")) {
      * Upload Error Reference
      * 1 = File size exceeds limit of 4GB
      * 2 = Invalid file type (Allowed types: avi)
+     * 3 = Video data is invalid or corrupted.
      */
     
     $flag['displayUploadForm'] = true;
@@ -303,20 +304,25 @@ if (filter_has_var(INPUT_GET, "upload")) {
             $error['upload'] = 2;
             $haveError = true;
         }
+        else if (!VideoHandling::verifyVideoIntegrity($_FILES['video']['tmp_name'])) {
+            $error['upload'] = 3;
+            $haveError = true;
+        }
         
-        if (!$haveError) {            
+        if (!$haveError) {  
+            //Move file to temp directory with correct identifier
             $uploaded = move_uploaded_file($_FILES['video']['tmp_name'], $file);
             if ($uploaded) {            
                 //Update permissions for file
                 FileHandling::ensurePermissions($file);
                 
-                //Move file to temp directory with correct identifier, and create database entry to flag for processing
+                //Create database entry with metadata and flag for processing
 
-                //Show file uploaded confirmation
+                //Flag file uploaded confirmation
                 $flag['videoUploaded'] = true;
             }
             else {
-                //Possible Upload attack, print generic error
+                //Possible Upload attack, Flag generic error
                 $flag['videoNotUploaded'] = true;
             }
         }
@@ -359,6 +365,12 @@ if (filter_has_var(INPUT_GET, "upload")) {
         else if ($error['upload'] == 2) {
             echo '
                 <a class="error">Video type is not supported. Supported types: avi</a>
+                <br><br>
+            ';
+        }
+        else if ($error['upload'] == 3) {
+            echo '
+                <a class="error">Video data is corrupted or invalid, please try again.</a>
                 <br><br>
             ';
         }
