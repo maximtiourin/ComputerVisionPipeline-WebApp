@@ -62,7 +62,7 @@ function isStringValidLogin($str) {
 // ~--~ ~--~ ~--~ ~--~ //
 /////////////////////////
 
-//Determine State
+//Determine Login State
 if (filter_has_var(INPUT_GET, "sid")) {
     //Session id is provided
     $flag['sid'] = true;
@@ -256,12 +256,36 @@ if ($invalid) {
     //Invalidated Session
     redirect('index.php?login'); //Send to default index to login
 }
+
+//Determine State after Login
+if (filter_has_var(INPUT_GET, "upload")) {
+    $flag['displayUploadForm'] = true;
+    $data['maxVideoByteSize'] = 4294967296; //4GB
+    $tempdir = '../videos/temp/'; //Specifies temp directory to store file in
+    $file = $uploaddir . basename($_FILES['userfile']['name']); //The filepath to temporarily store the video in, before it gets processed
+    
+    //Check to see if video was uploaded
+    if (filter_has_var(INPUT_POST, "submitUpload")) {
+        //Upload has been submitted
+        $flag['submitUpload'] = true;
+        
+        //Check to see if video was correctly uploaded to server
+        if (is_uploaded_file($_FILES['video']['tmp_name'])) {
+            //Move file to temp directory with correct identifier, and create database entry to flag for processing
+            
+        }
+        else {
+            //Upload attack, Redirect to upload without printing error
+            redirect(Session::buildSessionUrl("index.php", $data["sid"], "upload"));
+        }
+    }
+}
 ?>
 
 <html>
 <head>
 <title>CS160</title>
-<link rel="stylesheet" type="text/css" href="styles/login.css">
+<link rel="stylesheet" type="text/css" href="styles/main.css">
 </head>
 <body>
     <?php
@@ -269,7 +293,25 @@ if ($invalid) {
         echo '
             Control Panel for User '.$data['username'].'
             <br><br>
-            <a href="'.Session::buildSessionUrl("index.php", $data["sid"], "upload").'">Upload New Video</a>
+        ';
+        
+        if ($flag['displayUploadForm']) {
+            echo '
+                <form action="'.Session::buildSessionUrl("index.php", $data["sid"], "upload").'" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="MAX_FILE_SIZE" value="'.$data['maxVideoByteSize'].'"/>
+                    <label>Upload Video: <input name="video" type="file" /></label>
+                    <br><br>
+                    <input name="submitUpload" type="submit" value="Submit" />
+                </form>
+            ';
+        }
+        else {
+            echo '
+                <a href="'.Session::buildSessionUrl("index.php", $data["sid"], "upload").'">Upload New Video</a>
+            ';
+        }
+        
+        echo '
             <br><br>
             <a href="'.Session::buildSessionUrl("index.php", $data["sid"], "view").'">Play Existing Videos</a>
                 <br><br>
@@ -280,7 +322,7 @@ if ($invalid) {
     }
     else if ($flag['displayLogin']) {
         echo '
-            <form action="index.php?login" method="post">
+            <form class="credentials" action="index.php?login" method="post">
         ';
         if ($flag['recentlyRegistered']) {
             echo '
@@ -307,7 +349,7 @@ if ($invalid) {
     }
     else if ($flag['displayRegister']) {
         echo '
-            <form action="index.php?register" method="post">
+            <form class="credentials" action="index.php?register" method="post">
         ';
         if ($error['register'] == 1) {
             echo '
