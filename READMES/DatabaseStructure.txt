@@ -58,3 +58,23 @@ Example Row Entry:
 ----------------------------------------------------
 ----------------------------------------------------
 
+
+----------------------------------------------------
+Table = 'videos'
+Primary Key = (id)
+----------------------------------------------------
+column 1 = 'id' | BIGINT | NOT NULL | AUTO_INCREMENT
+column 2 = 'userid' | BIGINT | NOT_NULL
+column 3 = 'frame_rate' | VARCHAR | NOT_NULL
+column 4 = 'frame_width' | INT | NOT_NULL
+column 5 = 'frame_height' | INT | NOT_NULL
+column 6 = 'frame_count' | INT | NOT_NULL
+column 7 = 'status' | VARCHAR | NOT_NULL | DEFAULT="queued"
+column 8 = 'filepath' | VARCHAR | NOT_NULL
+column 9 = 'filepath_temp' | VARCHAR | NOT_NULL
+----------------------------------------------------
+Example Row Entry:
+11 | 15 | "30" | 720 | 1280 | 104 | "queued" | "../videos/e8241b100b8c28cfbf38232bf492ee72937dd23dc5a2e0671fd083a5f379316d/" | "../videos/e8241b100b8c28cfbf38232bf492ee72937dd23dc5a2e0671fd083a5f379316d/temp.avi"
+----------------------------------------------------
+----------------------------------------------------
+
