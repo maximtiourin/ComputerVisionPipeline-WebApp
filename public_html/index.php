@@ -270,7 +270,7 @@ if (filter_has_var(INPUT_GET, "upload")) {
     $flag['displayUploadForm'] = true;
     $data['maxVideoByteSize'] = FileHandling::getBytesForGigabytes(4); //4GB
     $videodir = '../videos/';
-    $tempdir = $videodir.'temp/';
+    $tempdir = $videodir . 'temp/';
     
     //Create directories if they dont exist
     FileHandling::ensureDirectory($videodir);
@@ -283,15 +283,13 @@ if (filter_has_var(INPUT_GET, "upload")) {
         
         //Determine temp file data
         $tempid = FileHandling::generateTempFileIdentifier($data['userid'] . $data['sid']);
+        $tempname = "temp";
         $extension = FileHandling::getFileExtension($_FILES['video']['name']);
         $validExtensions = array("avi");
         $size = $_FILES['video']['size'];
         $maxSize = $data['maxVideoByteSize'];
         $type = $_FILES['video']['type'];
         $validTypes = array("application/x-troff-msvideo", "video/avi", "video/msvideo", "video/x-msvideo", "video/avs-video");
-        
-        //The filepath to temporarily store the video in, before it gets processed
-        $file = $tempdir . $tempid . "." . $extension;
         
         //Get file metadata
         $metadata = VideoHandling::getVideoMetadata($_FILES['video']['tmp_name']);
@@ -312,21 +310,30 @@ if (filter_has_var(INPUT_GET, "upload")) {
             $haveError = true;
         }
         
-        if (!$haveError) {  
-            //Move file to temp directory with correct identifier
+        if (!$haveError) {
+            //The filepath to temporarily store the video in, before it gets processed
+            $filedir = $videodir . $tempid . '/';
+            FileHandling::ensureDirectory($filedir);
+            $file = $filedir . $tempname . '.' . $extension;
+            
+            //Move file to directory with correct identifier
             $uploaded = move_uploaded_file($_FILES['video']['tmp_name'], $file);
             if ($uploaded) {            
                 //Update permissions for file
                 FileHandling::ensurePermissions($file);
                 
-                //Create database entry with metadata and flag for processing
+                //Determine video metadata
                 $fps = VideoHandling::getFrameRate($metadata);
                 $framesize = VideoHandling::getFrameResolution($metadata);
                 $framecount = VideoHandling::getFrameCount($metadata);
                 
-                $db->execute("insert_videos_userid-frame_rate-frame_width-frame_height-frame_count-filepath_temp",
-                        array($data['userid'], $fps, $framesize['width'], $framesize['height'], $framecount, $file));
-
+                //TEMP:: Extract still images from video and store them
+                VideoHandling::extractStillImages($file, "temp", $fps, $filedir);
+                
+                //Create a database entry for the video and its metadata, and flag for processing
+                $db->execute("insert_videos_userid-frame_rate-frame_width-frame_height-frame_count-filepath-filepath_temp",
+                        array($data['userid'], $fps, $framesize['width'], $framesize['height'], $framecount, $filedir, $file));
+                
                 //Flag file uploaded confirmation
                 $flag['videoUploaded'] = true;
             }

@@ -15,6 +15,16 @@ class VideoHandling {
     }
     
     /*
+     * Extracts still png images from the file given an fps, and stores them
+     * in the dest directory using the naming scheme:
+     * 
+     * 'id.frame#.png  
+     */
+    public static function extractStillImages($file, $id, $fps, $dest) {
+        shell_exec('ffmpeg -i '.$file.' -vf fps='.$fps.' '.$dest.$id.'.%d.png');
+    }
+    
+    /*
      * Performs a quick ffprobe check to see if the video
      * contains invalid data
      * 

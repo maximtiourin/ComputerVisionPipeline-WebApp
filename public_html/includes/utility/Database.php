@@ -61,8 +61,8 @@ class Database {
                     'INSERT INTO sessions VALUES ($1, $2, $3, $4)');
             $this->prepare("insert_users_username-password-firstname-lastname",
                     'INSERT INTO users (username, password, firstname, lastname) VALUES ($1, $2, $3, $4)');
-            $this->prepare("insert_videos_userid-frame_rate-frame_width-frame_height-frame_count-filepath_temp",
-                    'INSERT INTO videos (userid, frame_rate, frame_width, frame_height, frame_count, filepath_temp) VALUES ($1, $2, $3, $4, $5, $6)');
+            $this->prepare("insert_videos_userid-frame_rate-frame_width-frame_height-frame_count-filepath-filepath_temp",
+                    'INSERT INTO videos (userid, frame_rate, frame_width, frame_height, frame_count, filepath, filepath_temp) VALUES ($1, $2, $3, $4, $5, $6, $7)');
 
             $this->prepare("select_sessions_sessionid", 
                     'SELECT * FROM sessions WHERE sessionid = $1');
