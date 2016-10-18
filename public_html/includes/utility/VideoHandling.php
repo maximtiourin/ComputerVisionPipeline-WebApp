@@ -5,17 +5,17 @@ class VideoHandling {
      * contains invalid data
      */
     public static function verifyVideoIntegrity($file) {
-        $json = getVideoMetadata($file);
+        $json = self::getVideoMetadata($file);
         
         if (!$json) {
             return false;
-        }
-        
-        if (empty($json)) {
+        }        
+        else if (self::countVideoStreams($json) == 0) {
             return false;
         }
-        
-        return true;
+        else {
+            return true;
+        }
     }
     
     /*
@@ -23,7 +23,30 @@ class VideoHandling {
      * An empty structure signifies an error
      */
     public static function getVideoMetadata($file) {
-        $output = shell_exec('ffprove -v quiet -print_format json -show_format -show_streams "'.$file.'"');
-        return json_decode($output, true);
+        $output = shell_exec('ffprobe -v quiet -print_format json -show_format -show_streams "'.$file.'"');
+        if (!$output) {
+            return null;
+        }
+        else {
+            return json_decode($output, true);
+        }
+    }
+    
+    /*
+     * Counts the number of video streams for the video
+     * 
+     * This is the amount of streams that contain the codec_type of 'video'
+     */
+    public static function countVideoStreams($json) {
+        $streams = $json['streams'];
+        $count = 0;
+        
+        foreach ($streams as $stream) {
+            if (strcmp($stream['codec_type'], "video") == 0) {
+                $count = $count + 1;
+            }
+        }
+        
+        return $count;
     }
 }

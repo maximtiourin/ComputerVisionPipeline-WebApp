@@ -309,6 +309,14 @@ if (filter_has_var(INPUT_GET, "upload")) {
             $haveError = true;
         }
         
+        /*$out = shell_exec('ffprobe -v quiet -print_format json -show_format -show_streams "'.$_FILES['video']['tmp_name'].'"');
+        echo $out;
+        echo '<br><br>';
+        $json = json_decode($out, true);
+        print_r($json);
+        echo '<br><br>';
+        $haveError = true;*/
+        
         if (!$haveError) {  
             //Move file to temp directory with correct identifier
             $uploaded = move_uploaded_file($_FILES['video']['tmp_name'], $file);
