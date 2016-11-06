@@ -70,9 +70,13 @@ class Database {
                     'SELECT * FROM users WHERE id = $1');
             $this->prepare("select_users_username",
                     'SELECT * FROM users WHERE username = $1');
+            $this->prepare("select_videos_status",
+                    'SELECT * FROM videos WHERE status = $1');
 
             $this->prepare("update_sessions_expiration_userid-sessionid", 
                     'UPDATE sessions SET expiration = $1 WHERE userid = $2 AND sessionid = $3');
+            $this->prepare("update_videos_status_id", 
+                    'UPDATE videos SET status = $1 WHERE id = $2');
         }
     }
     
