@@ -33,7 +33,7 @@ while (true) {
             
             echo 'Processing video #' . $videoid . ' : "' . $title . '" for user #' . $userid . '. Frames = ' . $framecount . '.'.$e;
             
-            //Extract Images quietly
+            //Extract Images
             VideoHandling::extractStillImages($dir . $tempfile, $videoid, $fps, $dir);
             
             //Update video row with new status
