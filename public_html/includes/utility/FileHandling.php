@@ -21,6 +21,10 @@ class FileHandling {
         }
     }
     
+    public static function deleteAllFilesMatchingPattern($pattern) {
+        array_map("unlink", glob($pattern));
+    }
+    
     /*
      * Ensures the existence of the directory, by creating it if it doesn't exist
      * at the given path, and/or isn't a valid directory
