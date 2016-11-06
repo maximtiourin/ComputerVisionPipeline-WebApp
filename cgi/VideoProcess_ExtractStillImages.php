@@ -41,6 +41,8 @@ while (true) {
             
             echo 'Video processed...'.$e;
         }
+        
+        $db->freeResult($result);
     }
     else {
         echo 'No more videos to process, idling...'.$e;
