@@ -271,6 +271,7 @@ if (filter_has_var(INPUT_GET, "upload")) {
     $data['maxVideoByteSize'] = FileHandling::getBytesForGigabytes(4); //4GB
     $videodir = '../videos/';
     $tempdir = $videodir . 'temp/';
+    $title = sanitize(filter_input(INPUT_POST, "title", FILTER_SANITIZE_STRING));
     
     //Create directories if they dont exist
     FileHandling::ensureDirectory($videodir);
@@ -312,15 +313,18 @@ if (filter_has_var(INPUT_GET, "upload")) {
         
         if (!$haveError) {
             //The filepath to temporarily store the video in, before it gets processed
-            $filedir = $videodir . $tempid . '/';
+            $userdir = $videodir . $data['userid'] . '/';
+            FileHandling::ensureDirectory($userdir);
+            $filedir = $userdir . $tempid . '/';
             FileHandling::ensureDirectory($filedir);
-            $file = $filedir . $tempname . '.' . $extension;
+            $filename = $tempname . '.' . $extension;
+            $file = $filedir . $filename;
             
             //Move file to directory with correct identifier
             $uploaded = move_uploaded_file($_FILES['video']['tmp_name'], $file);
             if ($uploaded) {            
-                //Update permissions for file
-                FileHandling::ensurePermissions($file);
+                //Update permissions for files
+                FileHandling::ensureDirectoryPermissionsRecursively($filedir);
                 
                 //Determine video metadata
                 $fps = VideoHandling::getFrameRate($metadata);
@@ -328,11 +332,11 @@ if (filter_has_var(INPUT_GET, "upload")) {
                 $framecount = VideoHandling::getFrameCount($metadata);
                 
                 //TEMP:: Extract still images from video and store them
-                VideoHandling::extractStillImages($file, "temp", $fps, $filedir);
+                //VideoHandling::extractStillImages($file, "temp", $fps, $filedir);
                 
                 //Create a database entry for the video and its metadata, and flag for processing
-                $db->execute("insert_videos_userid-frame_rate-frame_width-frame_height-frame_count-filepath-filepath_temp",
-                        array($data['userid'], $fps, $framesize['width'], $framesize['height'], $framecount, $filedir, $file));
+                $db->execute("insert_videos_userid-frame_rate-frame_width-frame_height-frame_count-title-directory-tempfile",
+                        array($data['userid'], $fps, $framesize['width'], $framesize['height'], $framecount, $title, $filedir, $filename));
                 
                 //Flag file uploaded confirmation
                 $flag['videoUploaded'] = true;
@@ -394,6 +398,8 @@ if (filter_has_var(INPUT_GET, "upload")) {
         if ($flag['displayUploadForm']) {
             echo '
                 <form action="" method="post" enctype="multipart/form-data">
+                    <label>Title: <input name="title" type="text" /></label>
+                    <br><br>
                     <input type="hidden" name="MAX_FILE_SIZE" value="'.$data['maxVideoByteSize'].'"/>
                     <label>Upload Video: <input name="video" type="file" /></label>
                     <br><br>

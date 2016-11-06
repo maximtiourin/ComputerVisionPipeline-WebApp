@@ -11,6 +11,16 @@ class FileHandling {
         chmod($file, $chmod);
     }
     
+    public static function ensureDirectoryPermissionsRecursively($file, $chmod = 0777) {
+        $dir = new DirectoryIterator($file);
+        foreach ($dir as $item) {
+            chmod($item->getPathname(), $chmod);
+            if ($item->isDir() && !$item->isDot()) {
+                chmod_r($item->getPathname());
+            }
+        }
+    }
+    
     /*
      * Ensures the existence of the directory, by creating it if it doesn't exist
      * at the given path, and/or isn't a valid directory
