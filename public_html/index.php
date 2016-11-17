@@ -356,6 +356,10 @@ if (filter_has_var(INPUT_GET, "upload")) {
 <link rel="stylesheet" type="text/css" href="styles/main.css">
 </head>
 <body>
+<center>
+    <header>CS 160: Computer Vision Pipeline Project</header>
+    <br><br>
+</center>
     <?php
     if ($flag['loggedIn']) {
         echo '
@@ -403,27 +407,29 @@ if (filter_has_var(INPUT_GET, "upload")) {
                     <input type="hidden" name="MAX_FILE_SIZE" value="'.$data['maxVideoByteSize'].'"/>
                     <label>Upload Video: <input name="video" type="file" /></label>
                     <br><br>
-                    <button name="submitUpload" type="submit" value="Submit">Upload</button>
+                    <button name="submitUpload" type="submit" value="Submit"><span>Upload</span></button>
                 </form>
             ';
         }
         else {
             echo '
-                <a href="'.Session::buildSessionUrl("index.php", $data["sid"], "upload").'">Upload New Video</a>
+                <a class="minibutton" href="'.Session::buildSessionUrl("index.php", $data["sid"], "upload").'">Upload New Video</a>
             ';
         }
         
         echo '
             <br><br>
-            <a href="'.Session::buildSessionUrl("index.php", $data["sid"], "view").'">Play Existing Videos</a>
+            <a class="minibutton" href="'.Session::buildSessionUrl("index.php", $data["sid"], "view").'">Play Existing Videos</a>
                 <br><br>
-            <a href="'.Session::buildSessionUrl("index.php", $data["sid"], "logout").'">Logout</a>
+            <a class="minibutton" href="'.Session::buildSessionUrl("index.php", $data["sid"], "logout").'">Logout</a>
             <br><br>
-            <a href="'.Session::buildSessionUrl("index.php", $data["sid"], "logoutAll").'">Logout All Sessions</a>
+            <a class="minibutton" href="'.Session::buildSessionUrl("index.php", $data["sid"], "logoutAll").'">Logout All Sessions</a>
         ';
     }
     else if ($flag['displayLogin']) {
         echo '
+            <center><img src="http://www.clker.com/cliparts/Z/C/1/n/M/2/youtube-style-play-button-hi.png" width="510" height="358"/></center>
+            <br><br>
             <form class="credentials" action="index.php?login" method="post">
         ';
         if ($flag['recentlyRegistered']) {
@@ -443,9 +449,9 @@ if (filter_has_var(INPUT_GET, "upload")) {
                 <br><br>
                 <label>Password: <input type="password" name="password" maxlength="256"></label>
                 <br><br>
-                <button name="submitLogin" type="submit" value="Submit">Login</button>
+                <button name="submitLogin" type="submit" value="Submit"><span>Login</span></button>
                 <br><br>
-                <a href="index.php?register">Register new account.</a>
+                <a class="minibutton" href="index.php?register">Register New Account</a>
             </form>
         ';
     }
@@ -494,14 +500,14 @@ if (filter_has_var(INPUT_GET, "upload")) {
                 <br><br>
                 <label>Last Name: <input type="text" name="lastname" maxlength="256" value="'.repopulatePost("lastname").'"></label>
                 <br><br>
-                <button name="submitRegister" type="submit" value="Submit">Register</button>
+                <button name="submitRegister" type="submit" value="Submit"><span>Register</span></button>
                 <br><br>
-                <a href="index.php?login">Back to Login.</a>
+                <a class="minibutton" href="index.php?login">Back to Login</a>
             </form>
         ';
     }
     ?>
-</body>
+<footer>Maxim Tiourin, Alexandria Le, Jason Springer, and Gordon Zhang</footer></body>
 </html>
 
 <?php
