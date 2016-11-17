@@ -8,6 +8,8 @@ $db->connectDefault();
 $db->prepareDefault();
 
 $sleepdur = 5;
+$minisleepdur = 1;
+$softlockdur = 5; //Frames are soft locked for 5 seconds to prevent multiple processes from attempting to read them
 $e = PHP_EOL;
 
 function runFacialRecognition($imagepath, $output) {
@@ -94,7 +96,7 @@ while (true) {
             
             echo 'Searched video #' . $videoid . ' for a queued frame...'.$e;
             
-            $result2 = $db->execute("select_frames_videoid-status_orderby=lastread*ASC", array($videoid, "queued"));
+            $result2 = $db->execute("select_frames_videoid-status-lastread*LTEQ_orderby=lastread*ASC", array($videoid, "queued", time() - $softlockdur));
             $resultrows = $db->countResultRows($result2);
             
             if ($resultrows > 0) {
@@ -147,12 +149,22 @@ while (true) {
                 break; //Exit loop because we only wanted to process one frame for this iteration
             }
             else {
-                //No queued frames, change video status to 'landmarked'
-                $db->execute("update_videos_status_id", array("landmarked", $videoid));
+                //Check to see if we only have softlocked frames left
+                $result3 = $db->execute("select_frames_videoid-status_orderby=lastread*ASC", array($videoid, "queued"));
+                $resultrows = $db->countResultRows($result3);
+                $db->freeResult($result3);
                 
-                echo '------------------------------------------'.$e
-                        .'Video #' . $videoid . ' has finished landmarking...'.$e
-                        .'------------------------------------------'.$e;
+                if ($resultrows <= 0) {
+                    //No queued frames, change video status to 'landmarked'
+                    $db->execute("update_videos_status_id", array("landmarked", $videoid));
+
+                    echo '------------------------------------------'.$e
+                            .'Video #' . $videoid . ' has finished landmarking...'.$e
+                            .'------------------------------------------'.$e;
+                }
+                
+                //All frames are currently softlocked, small sleep before checking again
+                sleep($minisleepdur);
             }
         }
         

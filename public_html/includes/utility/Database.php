@@ -76,6 +76,8 @@ class Database {
                     'SELECT * FROM videos WHERE status = $1');
             $this->prepare("select_frames_videoid-status_orderby=lastread*ASC",
                     'SELECT * FROM frames WHERE videoid = $1 AND status = $2 ORDER BY lastread ASC');
+            $this->prepare("select_frames_videoid-status-lastread*LTEQ_orderby=lastread*ASC",
+                    'SELECT * FROM frames WHERE videoid = $1 AND status = $2 AND lastread <= $3 ORDER BY lastread ASC');
 
             $this->prepare("update_sessions_expiration_userid-sessionid", 
                     'UPDATE sessions SET expiration = $1 WHERE userid = $2 AND sessionid = $3');
