@@ -1,7 +1,3 @@
-body {
-    padding-top: 5%;
-}
-
 .credentials {
     width: 400px;
     text-align: center;
@@ -17,3 +13,97 @@ body {
     color: #ff0000;
 }
 
+html {
+    background: black; /* For browsers that do not support gradients */
+    background: -webkit-linear-gradient(black, grey); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(black, grey); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(black, grey); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(black, grey); /* Standard syntax */
+    height: 100%;
+}
+label {
+    display: block;
+    color: #fff;
+    font-family: "Avant Garde", Avantgarde, "Century Gothic", CenturyGothic, "AppleGothic", sans-serif;
+}
+
+body {
+    /*padding-top: 5%;*/
+    height: 100%;
+    margin-left: 15;
+    padding: 0;
+    margin-bottom: 0;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color: #fff;
+    font-family: "Avant Garde", Avantgarde, "Century Gothic", CenturyGothic, "AppleGothic", sans-serif;
+}
+
+a.minibutton {
+    color: #afa7d1;
+    font-family: "Avant Garde", Avantgarde, "Century Gothic", CenturyGothic, "AppleGothic", sans-serif;
+}
+
+a.minibutton:hover {
+    color: #0099cc;
+}
+
+button {
+    background-color: #0099cc; /* Green */
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    padding: 20px 10px;
+    width: 200px;
+    transition: all 0.5s;
+    cursor: pointer;
+    margin: 5px;
+}
+
+button span {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s;
+}
+
+
+button span:after {
+  content: '\»';
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: -20px;
+  transition: 0.5s;
+}
+
+button:hover span {
+  padding-right: 25px;
+}
+
+button:hover span:after {
+  opacity: 1;
+  right: 0;
+}
+
+footer {
+  background-color: #808080;
+  padding:  15px 32px;
+  text-align: center;
+  font-family: "Andale Mono", AndaleMono, monospace;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin-bottom: 0px;
+  padding: 1rem;
+}
+
+header{
+  font-size: x-large;
+  color: #fff;
+  font-family: "Avant Garde", Avantgarde, "Century Gothic", CenturyGothic, "AppleGothic", sans-serif;
+}
