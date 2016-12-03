@@ -85,10 +85,14 @@ class Database {
                     'UPDATE videos SET status = $1 WHERE id = $2');
             $this->prepare("update_frames_status_id-videoid",
                     'UPDATE frames SET status = $1 WHERE id = $2 AND videoid = $3');
+            $this->prepare("update_frames_status_videoid",
+                    'UPDATE frames SET status = $1 WHERE videoid = $2');
             $this->prepare("update_frames_pointdata_id-videoid",
                     'UPDATE frames SET pointdata = $1 WHERE id = $2 AND videoid = $3');
             $this->prepare("update_frames_lastread_id-videoid",
                     'UPDATE frames SET lastread = $1 WHERE id = $2 AND videoid = $3');
+            $this->prepare("update_frames_lastread_videoid",
+                    'UPDATE frames SET lastread = $1 WHERE videoid = $2');
         }
     }
     

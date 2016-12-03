@@ -1,0 +1,3 @@
+/var/www/cs160.com/cgi/lib/OpenCVDrawing/CMakeFiles/edit_cache.dir
+/var/www/cs160.com/cgi/lib/OpenCVDrawing/CMakeFiles/rebuild_cache.dir
+/var/www/cs160.com/cgi/lib/OpenCVDrawing/CMakeFiles/Triangulization.dir
