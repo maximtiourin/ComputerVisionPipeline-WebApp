@@ -63,7 +63,8 @@ class Database {
                     'INSERT INTO users (username, password, firstname, lastname) VALUES ($1, $2, $3, $4)');
             $this->prepare("insert_videos_userid-frame_rate-frame_width-frame_height-frame_count-title-directory-tempfile",
                     'INSERT INTO videos (userid, frame_rate, frame_width, frame_height, frame_count, title, directory, tempfile) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)');
-            $this->prepare("insert_frames_id-videoid", 'INSERT INTO frames (id, videoid) VALUES ($1, $2)');
+            $this->prepare("insert_frames_id-videoid", 
+                    'INSERT INTO frames (id, videoid) VALUES ($1, $2)');
             
             
             $this->prepare("select_sessions_sessionid", 
@@ -74,6 +75,8 @@ class Database {
                     'SELECT * FROM users WHERE username = $1');
             $this->prepare("select_videos_status",
                     'SELECT * FROM videos WHERE status = $1');
+            $this->prepare("select_videos_status-lastread*LTEQ_orderby=lastread-id*ASC",
+                    'SELECT * FROM videos WHERE status = $1 AND lastread <= $2 ORDER BY lastread, id ASC');
             $this->prepare("select_frames_videoid-status_orderby=lastread*ASC",
                     'SELECT * FROM frames WHERE videoid = $1 AND status = $2 ORDER BY lastread ASC');
             $this->prepare("select_frames_videoid-status-lastread*LTEQ_orderby=lastread*ASC",
@@ -83,6 +86,8 @@ class Database {
                     'UPDATE sessions SET expiration = $1 WHERE userid = $2 AND sessionid = $3');
             $this->prepare("update_videos_status_id", 
                     'UPDATE videos SET status = $1 WHERE id = $2');
+            $this->prepare("update_videos_lastread_id", 
+                    'UPDATE videos SET lastread = $1 WHERE id = $2');
             $this->prepare("update_frames_status_id-videoid",
                     'UPDATE frames SET status = $1 WHERE id = $2 AND videoid = $3');
             $this->prepare("update_frames_status_videoid",

@@ -57,7 +57,7 @@ int main(int argc, char** argv )
    }
    
    //Establish color scalars
-   Scalar triangleColor(255, 0, 0), pointColor(0, 255, 0);
+   Scalar triangleColor(255, 0, 0), pointColor(0, 255, 0); //blue, green [for some reason scalars are (BLUE, GREEN, RED)]
    
    /* Do triangulation */
    //Collect all facial points and add them to container
