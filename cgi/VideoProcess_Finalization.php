@@ -67,8 +67,7 @@ while (true) {
             //Soft lock video
             $db->execute("update_videos_lastread_id", array(time(), $videoid));
             
-            //Frame combination TODO
-            //COMBINE()
+            //Frame combination
             $videoname = "output";
             combineFramesIntoVideo($fps, $videoid, $dir . 'temp/', $dir, $videoname);
             
@@ -78,7 +77,7 @@ while (true) {
                 $db->execute("update_videos_status_id", array("finalized", $videoid));
                         
                 echo '------------------------------------------'.$e
-                        .'Video #' . $videoid . "processed (" . $resultRows . " videos remaining)...".$e
+                        .'Video #' . $videoid . " processed (" . ($resultRows - 1)  . " videos remaining)...".$e
                         .'------------------------------------------'.$e;
             }
             else {
