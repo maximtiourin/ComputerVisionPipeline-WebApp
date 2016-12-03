@@ -1,4 +1,11 @@
 <?php
+/*
+Alexandria Tran Le
+Jason Edward Springer
+Maxim Tiourin
+Gordon Zhang
+*/
+
 include 'includes/include.php';
 
 //Connect to postgres db

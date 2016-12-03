@@ -1,4 +1,11 @@
 <?php
+/*
+Alexandria Tran Le
+Jason Edward Springer
+Maxim Tiourin
+Gordon Zhang
+*/
+
 class Session {
     public static function generateSessionId($userid) {
         return hash("sha256", "".$userid.self::getIPAddress().time());

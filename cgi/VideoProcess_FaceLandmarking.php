@@ -1,4 +1,11 @@
 <?php
+/*
+Alexandria Tran Le
+Jason Edward Springer
+Maxim Tiourin
+Gordon Zhang
+*/
+
 include '../public_html/includes/include.php';
 
 set_time_limit(0);
@@ -119,9 +126,16 @@ while (true) {
                     $data = extractFacialData($dir . $frameid . '_output_det_0.txt');
                     
                     if (isValidFacialData($data)) {
+                        //We've detected a face, now lets grab pupils
+                        
+                        //runPupilRecognition()                        
+                        $pupils = array(-1, -1, -1, -1); 
+                                
                         $points = getFacialDataArray($data);
                         
-                        $json = json_encode($points);
+                        $arr = array($pupils, $points);
+                        
+                        $json = json_encode($arr);
                         
                         $db->execute("update_frames_pointdata_id-videoid", array($json, $frameid, $videoid));
                     }

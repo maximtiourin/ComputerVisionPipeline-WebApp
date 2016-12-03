@@ -1,4 +1,11 @@
 <?php
+/*
+Alexandria Tran Le
+Jason Edward Springer
+Maxim Tiourin
+Gordon Zhang
+*/
+
 class VideoHandling {    
     /*
      * Returns the video metadata as an associative array json structure

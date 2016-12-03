@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 2.8)
+project( Triangulization )
+find_package( OpenCV REQUIRED )
+add_executable( Triangulization Triangulization.cpp )
+target_link_libraries( Triangulization ${OpenCV_LIBS} )

@@ -1,4 +1,11 @@
 <?php
+/*
+Alexandria Tran Le
+Jason Edward Springer
+Maxim Tiourin
+Gordon Zhang
+*/
+
 class FileHandling {
     public static function generateTempFileIdentifier($seed) {
         return hash("sha256", "".$seed.Session::getIPAddress().time());
