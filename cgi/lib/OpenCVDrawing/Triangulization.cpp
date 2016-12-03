@@ -57,56 +57,58 @@ int main(int argc, char** argv )
    }
    
    //Establish color scalars
-   Scalar triangleColor(0, 0, 255), pointColor(0, 255, 0);
+   Scalar triangleColor(255, 0, 0), pointColor(0, 255, 0);
    
    /* Do triangulation */
    //Collect all facial points and add them to container
-   vector<Point2f> points;
-   
-   for (size_t i = 0; i < pointPairs * 2; i += 2) {
-      istringstream sx(argv[8 + i]);
-      float x;
-      if (!(sx >> x)) {
-         printf("error");
-         return -1;
-      }
-      istringstream sy(argv[8 + i + 1]);
-      float y;
-      if (!(sy >> y)) {
-         printf("error");
-         return -1;
+   if (pointPairs > 0) {
+      vector<Point2f> points;
+      
+      for (size_t i = 0; i < pointPairs * 2; i += 2) {
+         istringstream sx(argv[8 + i]);
+         float x;
+         if (!(sx >> x)) {
+            printf("error");
+            return -1;
+         }
+         istringstream sy(argv[8 + i + 1]);
+         float y;
+         if (!(sy >> y)) {
+            printf("error");
+            return -1;
+         }
+         
+         points.push_back(Point2f(x, y));
       }
       
-      points.push_back(Point2f(x, y));
-   }
-   
-   //Determine width and height for bounding box
-   Size size = image.size();
-   Rect rect(0, 0, size.width, size.height);
-   
-   //Triangulate
-   Subdiv2D subdiv(rect);
-   
-   for (size_t i = 0; i < pointPairs; i++) {
-      subdiv.insert(points[i]);
-   }
-   
-   vector<Vec6f> triangles;
-   subdiv.getTriangleList(triangles);
-   
-   //Draw triangulation
-   vector<Point> pt(3);
-   
-   for (size_t i = 0; i < triangles.size(); i++) {
-      Vec6f tri = triangles[i];
-      pt[0] = Point(cvRound(tri[0]), cvRound(tri[1]));
-      pt[1] = Point(cvRound(tri[2]), cvRound(tri[3]));
-      pt[2] = Point(cvRound(tri[4]), cvRound(tri[5]));
+      //Determine width and height for bounding box
+      Size size = image.size();
+      Rect rect(0, 0, size.width, size.height);
       
-      if (rect.contains(pt[0]) && rect.contains(pt[1]) && rect.contains(pt[2])) {
-         line(image, pt[0], pt[1], triangleColor, 1, CV_AA, 0);
-         line(image, pt[1], pt[2], triangleColor, 1, CV_AA, 0);
-         line(image, pt[2], pt[3], triangleColor, 1, CV_AA, 0);
+      //Triangulate
+      Subdiv2D subdiv(rect);
+      
+      for (size_t i = 0; i < pointPairs; i++) {
+         subdiv.insert(points[i]);
+      }
+      
+      vector<Vec6f> triangles;
+      subdiv.getTriangleList(triangles);
+      
+      //Draw triangulation
+      vector<Point> pt(3);
+      
+      for (size_t i = 0; i < triangles.size(); i++) {
+         Vec6f tri = triangles[i];
+         pt[0] = Point(cvRound(tri[0]), cvRound(tri[1]));
+         pt[1] = Point(cvRound(tri[2]), cvRound(tri[3]));
+         pt[2] = Point(cvRound(tri[4]), cvRound(tri[5]));
+         
+         if (rect.contains(pt[0]) && rect.contains(pt[1]) && rect.contains(pt[2])) {
+            line(image, pt[0], pt[1], triangleColor, 1, CV_AA, 0);
+            line(image, pt[1], pt[2], triangleColor, 1, CV_AA, 0);
+            line(image, pt[2], pt[0], triangleColor, 1, CV_AA, 0);
+         }
       }
    }
    

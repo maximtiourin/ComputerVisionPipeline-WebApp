@@ -292,6 +292,7 @@ if (filter_has_var(INPUT_GET, "upload")) {
         //Determine temp file data
         $tempid = FileHandling::generateTempFileIdentifier($data['userid'] . $data['sid']);
         $tempname = "temp";
+        $drawdirname = "draw";
         $extension = FileHandling::getFileExtension($_FILES['video']['name']);
         $validExtensions = array("avi");
         $size = $_FILES['video']['size'];
@@ -324,6 +325,8 @@ if (filter_has_var(INPUT_GET, "upload")) {
             FileHandling::ensureDirectory($userdir);
             $filedir = $userdir . $tempid . '/';
             FileHandling::ensureDirectory($filedir);
+            $usertempdir = $filedir . 'temp/';
+            FileHandling::ensureDirectory($usertempdir);
             $filename = $tempname . '.' . $extension;
             $file = $filedir . $filename;
             

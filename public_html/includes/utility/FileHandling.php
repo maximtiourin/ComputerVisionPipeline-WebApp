@@ -19,12 +19,10 @@ class FileHandling {
     }
     
     public static function ensureDirectoryPermissionsRecursively($file, $chmod = 0777) {
-        $dir = new DirectoryIterator($file);
-        foreach ($dir as $item) {
-            chmod($item->getPathname(), $chmod);
-            if ($item->isDir() && !$item->isDot()) {
-                chmod_r($item->getPathname());
-            }
+        $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($file));
+
+        foreach($iterator as $item) {
+            chmod($item, $chmod);
         }
     }
     

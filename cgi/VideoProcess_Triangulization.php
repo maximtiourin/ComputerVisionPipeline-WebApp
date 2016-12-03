@@ -19,12 +19,57 @@ $minisleepdur = 1;
 $softlockdur = 5; //Frames are soft locked for 5 seconds to prevent multiple processes from attempting to read them
 $e = PHP_EOL;
 
+function runTriangulization($imagepath, $outpath, $datapoints) {
+    $facesize = 0;
+    $eyesstr = "-1 -1 -1 -1";
+    $pathstr = $imagepath . " " . $outpath;
+    $facestr = "";
+    $space = "";
+   
+    if ($datapoints != null) {    
+        $eyes = $datapoints[0];
+        $face = $datapoints[1];
+
+        $facesize = count($face);
+
+        $lx = $eyes["lx"];
+        $ly = $eyes["ly"];
+        $rx = $eyes["rx"];
+        $ry = $eyes["ry"];
+
+        $eyesstr = $lx . " " . $ly . " " . $rx . " " . $ry;
+
+        $facestr = "";
+        for ($i = 0; $i < $facesize - 1; $i++) {
+            $p = $face[$i];
+            $px = $p["x"];
+            $py = $p["y"];
+
+            $facestr = $facestr . " " . $px . " " . $py . " ";
+        }
+
+        if ($facesize > 0) {
+            $p = $face[$facesize - 1];
+            $px = $p["x"];
+            $py = $p["y"];
+
+            $facestr = $facestr . " " . $px . " " . $py;
+            
+            $space = " ";
+        }
+    }
+    
+    $output = shell_exec("./lib/OpenCVDrawing/Triangulization " . $pathstr . " " . $eyesstr . " " . $facesize . $space . $facestr);
+    
+    return $output;
+}
+
 function haveTriangulization($output) {
-    if (strcmp($output, "error") == 0)  {
-        return false;
+    if (strcmp($output, "success") == 0)  {
+        return true;
     }
     else {
-        return true;
+        return false;
     }
 }
 
@@ -71,16 +116,14 @@ while (true) {
                 
                 //Process that frame
                 $framepath = $dir . $videoid . '.' . $frameid . '.png';
+                $outpath = $dir . 'temp/' . $videoid . '.' . $frameid . '.png';
                 
-                /*
-                 * TODO : Triangulization
-                $outputpath = $dir . $frameid .'_output.txt';
-                runFacialRecognition($framepath, $outputpath);
-                 * 
-                 * 
-                 * $output = runTriangulization();
-                 */
-                $output = "testtest123";
+                //Retrieve datapoints
+                $pointdata = $row2['pointdata'];
+                $datapoints = json_decode($pointdata, true);
+                
+                //Run Triangulization
+                $output = runTriangulization($framepath, $outpath, $datapoints);
                 
                 $error = false;
                 if (!haveTriangulization($output)) {                    
