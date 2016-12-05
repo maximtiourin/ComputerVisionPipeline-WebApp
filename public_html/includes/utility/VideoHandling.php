@@ -75,7 +75,14 @@ class VideoHandling {
         
         foreach ($streams as $stream) {
             if (strcmp($stream['codec_type'], "video") == 0) {
-                return $stream['duration_ts'];
+                $rate = $stream['avg_frame_rate'];
+                list($frames, $seconds) = explode("/", $rate);
+                $fps = (int) (((float) $frames) / ((float) $seconds));
+                
+                $duration = floatval($stream['duration']);
+                $fpsfloat = floatval($fps);
+                
+                return ((int) ceil($duration * $fpsfloat));
             }
         }
         
