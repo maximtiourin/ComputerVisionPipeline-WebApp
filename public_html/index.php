@@ -270,7 +270,7 @@ if (filter_has_var(INPUT_GET, "upload")) {
     /*
      * Upload Error Reference
      * 1 = File size exceeds limit of 4GB
-     * 2 = Invalid file type (Allowed types: avi)
+     * 2 = Invalid file type (Allowed types: avi, mp4, wmv)
      * 3 = Video data is invalid or corrupted.
      */
     
@@ -293,11 +293,13 @@ if (filter_has_var(INPUT_GET, "upload")) {
         $tempid = FileHandling::generateTempFileIdentifier($data['userid'] . $data['sid']);
         $tempname = "temp";
         $extension = FileHandling::getFileExtension($_FILES['video']['name']);
-        $validExtensions = array("avi");
+        $validExtensions = array("avi", "mp4", "wmv");
         $size = $_FILES['video']['size'];
         $maxSize = $data['maxVideoByteSize'];
         $type = $_FILES['video']['type'];
-        $validTypes = array("application/x-troff-msvideo", "video/avi", "video/msvideo", "video/x-msvideo", "video/avs-video");
+        $validTypes = array("application/x-troff-msvideo", "video/avi", "video/msvideo", "video/x-msvideo", "video/avs-video",
+                            "video/mpeg", "video/x-mpeg",
+                            "video/x-ms-wmv");
         
         //Get file metadata
         $metadata = VideoHandling::getVideoMetadata($_FILES['video']['tmp_name']);
@@ -397,7 +399,7 @@ if (filter_has_var(INPUT_GET, "upload")) {
         }
         else if ($error['upload'] == 2) {
             echo '
-                <a class="error">Video type is not supported. Supported types: avi</a>
+                <a class="error">Video type is not supported. Supported types: avi, mp4, wmv</a>
                 <br><br>
             ';
         }
