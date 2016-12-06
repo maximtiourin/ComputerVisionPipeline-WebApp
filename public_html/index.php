@@ -359,6 +359,9 @@ if (filter_has_var(INPUT_GET, "upload")) {
         }
     }
 }
+else if (filter_has_var(INPUT_GET, "view")) {
+    $flag['displayVideos'] = true;
+}
 ?>
 
 <html>
@@ -373,6 +376,10 @@ if (filter_has_var(INPUT_GET, "upload")) {
 </center>
     <?php
     if ($flag['loggedIn']) {
+        echo '
+        <div class="center">
+        <center>
+        ';
         echo '
             Control Panel for User '.$data['username'].'
             <br><br>
@@ -410,36 +417,178 @@ if (filter_has_var(INPUT_GET, "upload")) {
             ';
         }
         
+        /*
+         * CONTROL PANEL BUTTONS
+         */
         if ($flag['displayUploadForm']) {
-            echo '
+            /*echo '
+                <br><br>
+                <div class="submitform">
                 <form action="" method="post" enctype="multipart/form-data">
-                    <label>Title: <input name="title" type="text" /></label>
+                    <label>Title:<br><br><input name="title" type="text" size="64"/></label>
                     <br><br>
                     <input type="hidden" name="MAX_FILE_SIZE" value="'.$data['maxVideoByteSize'].'"/>
-                    <label>Upload Video: <input name="video" type="file" /></label>
+                    <input name="video" type="file" />
                     <br><br>
-                    <button name="submitUpload" type="submit" value="Submit"><span>Upload</span></button>
+                    <button name="submitUpload" class="smallbutton" type="submit" value="Submit"><span>Upload</span></button>
                 </form>
+                </div>
+                <br><br>
+            ';*/
+            echo '
+            <button name="uploadVideo" class="bigbuttontab" type="button" value="btn" onclick="window.location.href=\''
+            .Session::buildSessionUrl("index.php", $data["sid"], "upload").'\'"><span>Upload New Video</span></button>
+            <button name="playVideos" class="bigbutton" type="button" value="btn" onclick="window.location.href=\''
+                .Session::buildSessionUrl("index.php", $data["sid"], "view").'\'"><span>Play Existing Videos</span></button>
+            <br>
+            <button name="logout" class="smallbutton" type="button" value="btn" onclick="window.location.href=\''
+                .Session::buildSessionUrl("index.php", $data["sid"], "logout").'\'"><span>Logout</span></button>
+            <button name="logoutAll" class="smallbutton" type="button" value="btn" onclick="window.location.href=\''
+                .Session::buildSessionUrl("index.php", $data["sid"], "logoutAll").'\'"><span>Logout All Sessions</span></button>
+            ';
+        }
+        else if ($flag['displayVideos']) {
+            /*echo '
+                <br><br>
+                <div class="submitform">
+                SHOW VIDEOS HERE
+                </div>
+                <br><br>
+            ';*/
+            echo '
+            <button name="uploadVideo" class="bigbutton" type="button" value="btn" onclick="window.location.href=\''
+            .Session::buildSessionUrl("index.php", $data["sid"], "upload").'\'"><span>Upload New Video</span></button>
+            <button name="playVideos" class="bigbuttontab" type="button" value="btn" onclick="window.location.href=\''
+                .Session::buildSessionUrl("index.php", $data["sid"], "view").'\'"><span>Play Existing Videos</span></button>
+            <br>
+            <button name="logout" class="smallbutton" type="button" value="btn" onclick="window.location.href=\''
+                .Session::buildSessionUrl("index.php", $data["sid"], "logout").'\'"><span>Logout</span></button>
+            <button name="logoutAll" class="smallbutton" type="button" value="btn" onclick="window.location.href=\''
+                .Session::buildSessionUrl("index.php", $data["sid"], "logoutAll").'\'"><span>Logout All Sessions</span></button>
             ';
         }
         else {
             echo '
-                <a class="minibutton" href="'.Session::buildSessionUrl("index.php", $data["sid"], "upload").'">Upload New Video</a>
+            <button name="uploadVideo" class="bigbutton" type="button" value="btn" onclick="window.location.href=\''
+            .Session::buildSessionUrl("index.php", $data["sid"], "upload").'\'"><span>Upload New Video</span></button>
+            <button name="playVideos" class="bigbutton" type="button" value="btn" onclick="window.location.href=\''
+                .Session::buildSessionUrl("index.php", $data["sid"], "view").'\'"><span>Play Existing Videos</span></button>
+            <br>
+            <button name="logout" class="smallbutton" type="button" value="btn" onclick="window.location.href=\''
+                .Session::buildSessionUrl("index.php", $data["sid"], "logout").'\'"><span>Logout</span></button>
+            <button name="logoutAll" class="smallbutton" type="button" value="btn" onclick="window.location.href=\''
+                .Session::buildSessionUrl("index.php", $data["sid"], "logoutAll").'\'"><span>Logout All Sessions</span></button>
             ';
         }
         
-        echo '
-            <br><br>
-            <a class="minibutton" href="'.Session::buildSessionUrl("index.php", $data["sid"], "view").'">Play Existing Videos</a>
+        /*
+         * INDIVIDUAL PAGES
+         */
+        if ($flag['displayUploadForm']) {
+            echo '
                 <br><br>
-            <a class="minibutton" href="'.Session::buildSessionUrl("index.php", $data["sid"], "logout").'">Logout</a>
-            <br><br>
-            <a class="minibutton" href="'.Session::buildSessionUrl("index.php", $data["sid"], "logoutAll").'">Logout All Sessions</a>
+                <div class="submitform">
+                <form action="" method="post" enctype="multipart/form-data">
+                    <label>Title:<br><br><input name="title" type="text" size="64" maxlength="64"/></label>
+                    <br><br>
+                    <input type="hidden" name="MAX_FILE_SIZE" value="'.$data['maxVideoByteSize'].'"/>
+                    <input name="video" type="file" />
+                    <br><br>
+                    <button name="submitUpload" class="smallbutton" type="submit" value="Submit"><span>Upload</span></button>
+                </form>
+                </div>
+                <br><br>
+            ';
+        }
+        else if ($flag['displayVideos']) {
+            echo '
+                <br><br>
+                <div class="submitform">
+                <div class="videothumbnailContainer">
+            ';
+                //SHOW VIDEOS HERE
+            
+            $result = $db->execute("select_videos_userid", array($data['userid']));
+            $resultRows = $db->countResultRows($result);
+            
+            if ($resultRows > 0) {
+                $videosPerRow = 5;
+                $videoWidth = 160;
+                $videoHeight = 100;
+                
+                //Display videos
+                $rowCount = 0;
+                while ($row = $db->fetchArray($result)) {
+                    $videoid = $row['id'];
+                    $userid = $row['userid'];
+                    $fps = $row['frame_rate'];
+                    $width = $row['frame_width'];
+                    $height = $row['frame_height'];
+                    $framecount = $row['frame_count'];
+                    $status = $row['status'];
+                    $title = $row['title'];
+                    $dir = $row['directory'];
+                    $tempfile = $row['tempfile'];
+                    
+                    echo '
+                        <div class="videothumbnail">
+                    ';
+                    
+                    if (strcmp($status, "finalized") == 0) {
+                        echo '
+                        <img src="image.php?href='.$dir.'temp/'.$videoid.'.1.png" width="'.$videoWidth.'" height="'.$videoHeight.'"/>
+                        ';
+                    }
+                    else {
+                        echo '
+                        <img src="/images/processing.gif" width="'.$videoWidth.'" height="'.$videoHeight.'"/>
+                        ';
+                    }
+                    
+                    echo '
+                        <br>
+                        '.$title.'
+                    ';
+                    
+                    echo '
+                        </div>
+                    ';
+                    
+                    $rowCount++;
+                    
+                    if ($rowCount >= $videosPerRow - 1) {
+                        echo '
+                        <br>
+                        ';
+                        $rowCount = 0;
+                    }
+                }
+            }
+            else {
+                //No videos for user!
+                echo 'No videos uploaded yet!';
+            }
+            
+            $db->freeResult($result);
+            
+            echo '
+                </div>
+                </div>
+                <br><br>
+            ';
+        }
+        else {
+            
+        }
+        
+        echo '
+        </center>
+        </div>
         ';
     }
     else if ($flag['displayLogin']) {
         echo '
-            <center><img src="http://www.clker.com/cliparts/Z/C/1/n/M/2/youtube-style-play-button-hi.png" width="510" height="358"/></center>
+            <center><img src="/images/youtube-style-play-button-hi.png" width="510" height="358"/></center>
             <br><br>
             <form class="credentials" action="index.php?login" method="post">
         ';
@@ -460,9 +609,9 @@ if (filter_has_var(INPUT_GET, "upload")) {
                 <br><br>
                 <label>Password: <input type="password" name="password" maxlength="256"></label>
                 <br><br>
-                <button name="submitLogin" type="submit" value="Submit"><span>Login</span></button>
-                <br><br>
-                <a class="minibutton" href="index.php?register">Register New Account</a>
+                <button name="submitLogin" class="bigbutton" type="submit" value="Submit"><span>Login</span></button>
+                <br>
+                <button name="logout" class="smallbutton" type="button" value="btn" onclick="window.location.href=\'index.php?register\'"><span>Register New Account</span></button>
             </form>
         ';
     }
@@ -501,6 +650,8 @@ if (filter_has_var(INPUT_GET, "upload")) {
             ';
         }
         echo '
+                <div class="submitform">
+                <br><br>
                 <label>Username*: <input type="text" name="username" maxlength="128" value="'.repopulatePost("username").'"></label>
                 <br><br>
                 <label>Password*: <input type="password" name="password" maxlength="256"></label>
@@ -511,9 +662,11 @@ if (filter_has_var(INPUT_GET, "upload")) {
                 <br><br>
                 <label>Last Name: <input type="text" name="lastname" maxlength="256" value="'.repopulatePost("lastname").'"></label>
                 <br><br>
-                <button name="submitRegister" type="submit" value="Submit"><span>Register</span></button>
+                </div>
                 <br><br>
-                <a class="minibutton" href="index.php?login">Back to Login</a>
+                <button name="submitRegister" class="bigbutton" type="submit" value="Submit"><span>Register</span></button>
+                <br>
+                <button name="logout" class="smallbutton" type="button" value="btn" onclick="window.location.href=\'index.php?login\'"><span>Back to Login</span></button>
             </form>
         ';
     }

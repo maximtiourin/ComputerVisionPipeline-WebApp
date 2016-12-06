@@ -20,13 +20,37 @@ Gordon Zhang
     color: #ff0000;
 }
 
+.center {
+    margin: auto;
+    width: 50%;
+}
+
+.submitform {
+    padding: 10px;
+    border-style: solid;
+    border-color: #0099cc;
+}
+
+.videothumbnail {
+    display: inline-block;
+    text-align: center;
+    vertical-align: text-top;
+    padding: 5px;
+    width: 160px;
+    margin: auto;
+}
+
+.videothumbnailContainer {
+    display: block;
+    text-align: center;
+}
+
 html {
     background: black; /* For browsers that do not support gradients */
     background: -webkit-linear-gradient(black, grey); /* For Safari 5.1 to 6.0 */
     background: -o-linear-gradient(black, grey); /* For Opera 11.1 to 12.0 */
     background: -moz-linear-gradient(black, grey); /* For Firefox 3.6 to 15 */
     background: linear-gradient(black, grey); /* Standard syntax */
-    height: 100%;
 }
 label {
     display: block;
@@ -37,8 +61,10 @@ label {
 body {
     /*padding-top: 5%;*/
     height: 100%;
+    margin: auto;
     margin-left: 15;
     padding: 0;
+    position: relative;
     margin-bottom: 0;
     background-repeat: no-repeat;
     background-attachment: fixed;
@@ -55,7 +81,7 @@ a.minibutton:hover {
     color: #0099cc;
 }
 
-button {
+button.bigbutton {
     background-color: #0099cc; /* Green */
     border: none;
     color: white;
@@ -64,6 +90,36 @@ button {
     display: inline-block;
     font-size: 16px;
     padding: 20px 10px;
+    width: 200px;
+    transition: all 0.5s;
+    cursor: pointer;
+    margin: 5px;
+}
+
+button.bigbuttontab {
+    background-color: #77b8ce; /* Green */
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    padding: 20px 10px;
+    width: 200px;
+    transition: all 0.5s;
+    cursor: pointer;
+    margin: 5px;
+}
+
+button.smallbutton {
+    background-color: #0099cc; /* Green */
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    padding: 4px 10px;
     width: 200px;
     transition: all 0.5s;
     cursor: pointer;
@@ -105,6 +161,7 @@ footer {
   right: 0;
   bottom: 0;
   left: 0;
+  margin: 0;
   margin-bottom: 0px;
   padding: 1rem;
 }

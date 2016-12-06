@@ -73,6 +73,8 @@ class Database {
                     'SELECT * FROM users WHERE id = $1');
             $this->prepare("select_users_username",
                     'SELECT * FROM users WHERE username = $1');
+            $this->prepare("select_videos_userid",
+                    'SELECT * FROM videos WHERE userid = $1');
             $this->prepare("select_videos_status",
                     'SELECT * FROM videos WHERE status = $1');
             $this->prepare("select_videos_status-lastread*LTEQ_orderby=lastread-id*ASC",
