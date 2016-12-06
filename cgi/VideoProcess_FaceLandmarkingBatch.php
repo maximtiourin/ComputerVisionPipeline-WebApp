@@ -42,6 +42,12 @@ function haveFacialRecognition($checkpath, $id) {
 }
 
 function extractPupilData($data) {
+    echo 'pupil data = ' . $data . PHP_EOL;
+    
+    if ($data == null) {
+        return array("lx" => -1, "ly" => -1, "rx" => -1, "ry" => -1);
+    }
+    
     $splitmid = explode(":", $data);
     $lhs = explode(",", $splitmid[0]);
     $rhs = explode(",", $splitmid[1]);
@@ -51,7 +57,7 @@ function extractPupilData($data) {
 }
 
 function runPupilDetection($inputdir) {
-    $output = shell_exec('./lib/EyeDetection/eyeLike ' . $inputdir);
+    $output = shell_exec('./lib/EyeDetection/eyeLike "' . $inputdir . '" "./haarcascade_frontalface_alt.xml"');
     
     $data = extractPupilData($output);
     
@@ -147,7 +153,7 @@ while (true) {
                     if (isValidFacialData($data)) {
                         //We've detected a face, now lets grab pupils
                         
-                        $pdata = runPupilRecognition($dir . $videoid . '.' . $frameid . ".png");                        
+                        $pdata = runPupilDetection($dir . $videoid . '.' . $frameid . ".png");                        
                         $pupils = array("lx" => $pdata['lx'], "ly" => $pdata['ly'], "rx" => $pdata['rx'], "ry" => $pdata['ry']); 
                                 
                         $points = getFacialDataArray($data);

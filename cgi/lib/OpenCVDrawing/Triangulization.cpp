@@ -46,6 +46,33 @@ int main(int argc, char** argv )
 		   return -1;
       }
 	}
+	
+	/* Grab pupil data */
+   istringstream lxp(argv[3]);
+	int pupil_lx;
+	if (!(lxp >> pupil_lx)) {
+		printf("error");
+		return -1;
+	}
+	istringstream lyp(argv[4]);
+	int pupil_ly;
+	if (!(lyp >> pupil_ly)) {
+		printf("error");
+		return -1;
+	}
+	istringstream rxp(argv[5]);
+	int pupil_rx;
+	if (!(rxp >> pupil_rx)) {
+		printf("error");
+		return -1;
+	}
+	istringstream ryp(argv[6]);
+	int pupil_ry;
+	if (!(ryp >> pupil_ry)) {
+		printf("error");
+		return -1;
+	}
+	
 
    Mat image;
    image = imread(argv[1], 1);
@@ -58,6 +85,11 @@ int main(int argc, char** argv )
    
    //Establish color scalars
    Scalar triangleColor(255, 0, 0), pointColor(0, 255, 0); //blue, green [for some reason scalars are (BLUE, GREEN, RED)]
+   
+   
+   //Determine width and height for bounding box
+   Size size = image.size();
+   Rect rect(0, 0, size.width, size.height);
    
    /* Do triangulation */
    //Collect all facial points and add them to container
@@ -80,10 +112,6 @@ int main(int argc, char** argv )
          
          points.push_back(Point2f(x, y));
       }
-      
-      //Determine width and height for bounding box
-      Size size = image.size();
-      Rect rect(0, 0, size.width, size.height);
       
       //Triangulate
       Subdiv2D subdiv(rect);
@@ -109,6 +137,22 @@ int main(int argc, char** argv )
             line(image, pt[1], pt[2], triangleColor, 1, CV_AA, 0);
             line(image, pt[2], pt[0], triangleColor, 1, CV_AA, 0);
          }
+      }
+   }
+   
+   //Draw pupils if they exist
+   if (pupil_lx != -1 && pupil_ly != -1) {
+      Point pupil_left = Point(pupil_lx, pupil_ly);
+      
+      if (rect.contains(pupil_left)) {
+         circle(image, pupil_left, 4, pointColor);
+      }
+   }
+   if (pupil_rx != -1 && pupil_ry != -1) {
+      Point pupil_right = Point(pupil_rx, pupil_ry);
+      
+      if (rect.contains(pupil_right)) {
+         circle(image, pupil_right, 4, pointColor);
       }
    }
    

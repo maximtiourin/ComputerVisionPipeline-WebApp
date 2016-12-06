@@ -298,7 +298,7 @@ if (filter_has_var(INPUT_GET, "upload")) {
         $maxSize = $data['maxVideoByteSize'];
         $type = $_FILES['video']['type'];
         $validTypes = array("application/x-troff-msvideo", "video/avi", "video/msvideo", "video/x-msvideo", "video/avs-video",
-                            "video/mpeg", "video/x-mpeg",
+                            "video/mp4", "video/mpeg", "video/x-mpeg",
                             "video/x-ms-wmv");
         
         //Get file metadata
