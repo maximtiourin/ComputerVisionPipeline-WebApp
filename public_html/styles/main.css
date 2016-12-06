@@ -31,6 +31,12 @@ Gordon Zhang
     border-color: #0099cc;
 }
 
+.playvideo {
+    padding: 10px;
+    border-style: solid;
+    border-color: #0099cc;
+}
+
 .videothumbnail {
     display: inline-block;
     text-align: center;
@@ -38,11 +44,18 @@ Gordon Zhang
     padding: 5px;
     width: 160px;
     margin: auto;
+    font-weight: bold;
+    font-size: 14px;
 }
 
 .videothumbnailContainer {
     display: block;
     text-align: center;
+}
+
+.videotitle {
+    font-weight: bold;
+    font-size: 24px;
 }
 
 html {

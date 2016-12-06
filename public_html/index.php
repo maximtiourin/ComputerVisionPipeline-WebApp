@@ -362,6 +362,32 @@ if (filter_has_var(INPUT_GET, "upload")) {
 else if (filter_has_var(INPUT_GET, "view")) {
     $flag['displayVideos'] = true;
 }
+else if (filter_has_var(INPUT_GET, "play")) {
+    $flag['playVideo'] = true;
+    $data['playVideoId'] = sanitize(filter_input(INPUT_GET, "play", FILTER_SANITIZE_STRING));
+}
+else if (filter_has_var(INPUT_GET, "delete")) {
+    $flag['deleteVideo'] = true;
+    $deleteId = sanitize(filter_input(INPUT_GET, "delete", FILTER_SANITIZE_STRING));
+    
+    $result = $db->execute("select_videos_id-userid", array($deleteId, $data['userid']));
+    $resultRows = $db->countResultRows($result);
+    
+    if ($resultRows > 0) {
+        //Valid video to delete
+        $row = $db->fetchArray($result);
+        $dir = $row['directory'];
+        
+        $db->execute("delete_frames_videoid", array($deleteId));
+        $db->execute("delete_videos_id", array($deleteId));
+        FileHandling::deleteDirectoryAndContents($dir);
+    }
+    
+    $db->freeResult($result);
+    
+    //Redirect to view videos
+    redirect(Session::buildSessionUrl("index.php", $data["sid"], "view"));
+}
 ?>
 
 <html>
@@ -421,20 +447,6 @@ else if (filter_has_var(INPUT_GET, "view")) {
          * CONTROL PANEL BUTTONS
          */
         if ($flag['displayUploadForm']) {
-            /*echo '
-                <br><br>
-                <div class="submitform">
-                <form action="" method="post" enctype="multipart/form-data">
-                    <label>Title:<br><br><input name="title" type="text" size="64"/></label>
-                    <br><br>
-                    <input type="hidden" name="MAX_FILE_SIZE" value="'.$data['maxVideoByteSize'].'"/>
-                    <input name="video" type="file" />
-                    <br><br>
-                    <button name="submitUpload" class="smallbutton" type="submit" value="Submit"><span>Upload</span></button>
-                </form>
-                </div>
-                <br><br>
-            ';*/
             echo '
             <button name="uploadVideo" class="bigbuttontab" type="button" value="btn" onclick="window.location.href=\''
             .Session::buildSessionUrl("index.php", $data["sid"], "upload").'\'"><span>Upload New Video</span></button>
@@ -448,13 +460,6 @@ else if (filter_has_var(INPUT_GET, "view")) {
             ';
         }
         else if ($flag['displayVideos']) {
-            /*echo '
-                <br><br>
-                <div class="submitform">
-                SHOW VIDEOS HERE
-                </div>
-                <br><br>
-            ';*/
             echo '
             <button name="uploadVideo" class="bigbutton" type="button" value="btn" onclick="window.location.href=\''
             .Session::buildSessionUrl("index.php", $data["sid"], "upload").'\'"><span>Upload New Video</span></button>
@@ -508,7 +513,7 @@ else if (filter_has_var(INPUT_GET, "view")) {
             ';
                 //SHOW VIDEOS HERE
             
-            $result = $db->execute("select_videos_userid", array($data['userid']));
+            $result = $db->execute("select_videos_userid_orderby=id*DESC", array($data['userid']));
             $resultRows = $db->countResultRows($result);
             
             if ($resultRows > 0) {
@@ -536,7 +541,9 @@ else if (filter_has_var(INPUT_GET, "view")) {
                     
                     if (strcmp($status, "finalized") == 0) {
                         echo '
+                        <a href="'.Session::buildSessionUrl("index.php", $data["sid"], "play=".$videoid).'">
                         <img src="image.php?href='.$dir.'temp/'.$videoid.'.1.png" width="'.$videoWidth.'" height="'.$videoHeight.'"/>
+                        </a>
                         ';
                     }
                     else {
@@ -546,8 +553,8 @@ else if (filter_has_var(INPUT_GET, "view")) {
                     }
                     
                     echo '
-                        <br>
-                        '.$title.'
+                        <br><br>
+                        '.htmlspecialchars_decode($title).'
                     ';
                     
                     echo '
@@ -556,7 +563,7 @@ else if (filter_has_var(INPUT_GET, "view")) {
                     
                     $rowCount++;
                     
-                    if ($rowCount >= $videosPerRow - 1) {
+                    if ($rowCount >= $videosPerRow) {
                         echo '
                         <br>
                         ';
@@ -573,6 +580,54 @@ else if (filter_has_var(INPUT_GET, "view")) {
             
             echo '
                 </div>
+                </div>
+                <br><br>
+            ';
+        }
+        else if ($flag['playVideo']) {
+            echo '
+                <br><br>
+                <div class="playvideo">
+            ';
+            
+            $result = $db->execute("select_videos_id-userid", array($data['playVideoId'], $data['userid']));
+            $resultRows = $db->countResultRows($result);
+            
+            if ($resultRows > 0) {
+                $row = $db->fetchArray($result);
+                
+                $videoid = $row['id'];
+                $userid = $row['userid'];
+                $fps = $row['frame_rate'];
+                $width = $row['frame_width'];
+                $height = $row['frame_height'];
+                $framecount = $row['frame_count'];
+                $status = $row['status'];
+                $title = $row['title'];
+                $dir = $row['directory'];
+                $tempfile = $row['tempfile'];
+                
+                echo '
+                 <a class="videotitle">'.htmlspecialchars_decode($title).'</a>
+                 <br><br>
+                 <video controls>
+                    <source src="video.php?href='.$dir.'output.mp4" type="video/mp4">
+                 </video>
+                 <br><br><br><br>
+                 <button name="deleteVideo" class="smallbutton" type="button" value="btn" onclick="window.location.href=\''
+                .Session::buildSessionUrl("index.php", $data["sid"], "delete=".$videoid).'\'"><span>Delete Video</span></button>
+                ';
+            }
+            else {
+                //Video id invalid for user
+                echo '
+                    This video does not exist!
+                ';
+            }
+            
+            $db->freeResult($result);
+            
+            echo '
                 </div>
                 <br><br>
             ';
@@ -613,6 +668,7 @@ else if (filter_has_var(INPUT_GET, "view")) {
                 <br>
                 <button name="logout" class="smallbutton" type="button" value="btn" onclick="window.location.href=\'index.php?register\'"><span>Register New Account</span></button>
             </form>
+            <footer>Maxim Tiourin, Alexandria Le, Jason Springer, and Gordon Zhang</footer>
         ';
     }
     else if ($flag['displayRegister']) {
@@ -668,10 +724,11 @@ else if (filter_has_var(INPUT_GET, "view")) {
                 <br>
                 <button name="logout" class="smallbutton" type="button" value="btn" onclick="window.location.href=\'index.php?login\'"><span>Back to Login</span></button>
             </form>
+            <footer>Maxim Tiourin, Alexandria Le, Jason Springer, and Gordon Zhang</footer>
         ';
     }
     ?>
-<footer>Maxim Tiourin, Alexandria Le, Jason Springer, and Gordon Zhang</footer></body>
+</body>
 </html>
 
 <?php

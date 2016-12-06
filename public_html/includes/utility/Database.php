@@ -56,6 +56,10 @@ class Database {
                     'DELETE FROM sessions WHERE userid = $1 AND sessionid = $2');
             $this->prepare("delete_sessions_userid-expiration*LTEQ",
                     'DELETE FROM sessions WHERE userid = $1 AND expiration <= $2');
+            $this->prepare("delete_videos_id",
+                    'DELETE FROM videos WHERE id = $1');
+            $this->prepare("delete_frames_videoid",
+                    'DELETE FROM frames WHERE videoid = $1');
 
             $this->prepare("insert_sessions_userid-sessionid-expiration-ipaddress",
                     'INSERT INTO sessions VALUES ($1, $2, $3, $4)');
@@ -75,6 +79,10 @@ class Database {
                     'SELECT * FROM users WHERE username = $1');
             $this->prepare("select_videos_userid",
                     'SELECT * FROM videos WHERE userid = $1');
+            $this->prepare("select_videos_userid_orderby=id*DESC",
+                    'SELECT * FROM videos WHERE userid = $1 ORDER BY id DESC');
+            $this->prepare("select_videos_id-userid",
+                    'SELECT * FROM videos WHERE id = $1 AND userid = $2');
             $this->prepare("select_videos_status",
                     'SELECT * FROM videos WHERE status = $1');
             $this->prepare("select_videos_status-lastread*LTEQ_orderby=lastread-id*ASC",
