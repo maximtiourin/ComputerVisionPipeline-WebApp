@@ -138,21 +138,28 @@ int main(int argc, char** argv )
             line(image, pt[2], pt[0], triangleColor, 1, CV_AA, 0);
          }
       }
-   }
-   
-   //Draw pupils if they exist
-   if (pupil_lx != -1 && pupil_ly != -1) {
-      Point pupil_left = Point(pupil_lx, pupil_ly);
       
-      if (rect.contains(pupil_left)) {
-         circle(image, pupil_left, 4, pointColor);
+      //Draw pupils if they exist and are within the general eye regions
+      Point2f leftStart(points[37].x, points[37].y);
+      Point2f leftEnd(points[40].x, points[40].y);
+      Rect leftEyeRegion(leftStart.x, leftStart.y, leftEnd.x - leftStart.x, leftEnd.y - leftStart.y);
+      Point2f rightStart(points[43].x, points[43].y);
+      Point2f rightEnd(points[46].x, points[46].y);
+      Rect rightEyeRegion(rightStart.x, rightStart.y, rightEnd.x - rightStart.x, rightEnd.y - rightStart.y);
+      
+      if (pupil_lx != -1 && pupil_ly != -1) {
+         Point pupil_left = Point(pupil_lx, pupil_ly);
+         
+         if (rect.contains(pupil_left) && leftEyeRegion.contains(pupil_left)) {
+            circle(image, pupil_left, 4, pointColor);
+         }
       }
-   }
-   if (pupil_rx != -1 && pupil_ry != -1) {
-      Point pupil_right = Point(pupil_rx, pupil_ry);
-      
-      if (rect.contains(pupil_right)) {
-         circle(image, pupil_right, 4, pointColor);
+      if (pupil_rx != -1 && pupil_ry != -1) {
+         Point pupil_right = Point(pupil_rx, pupil_ry);
+         
+         if (rect.contains(pupil_right) && rightEyeRegion.contains(pupil_right)) {
+            circle(image, pupil_right, 4, pointColor);
+         }
       }
    }
    
