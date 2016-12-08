@@ -522,7 +522,6 @@ else if (filter_has_var(INPUT_GET, "delete")) {
                 $videoHeight = 100;
                 
                 //Display videos
-                $rowCount = 0;
                 while ($row = $db->fetchArray($result)) {
                     $videoid = $row['id'];
                     $userid = $row['userid'];
@@ -560,15 +559,6 @@ else if (filter_has_var(INPUT_GET, "delete")) {
                     echo '
                         </div>
                     ';
-                    
-                    $rowCount++;
-                    
-                    if ($rowCount >= $videosPerRow) {
-                        echo '
-                        <br>
-                        ';
-                        $rowCount = 0;
-                    }
                 }
             }
             else {
